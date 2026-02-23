@@ -6,8 +6,10 @@ def conn():
     return sqlite3.connect(DB_NAME, check_same_thread=False)
 
 def init_db():
-    c = conn().cursor()
+    connection = conn()
+    c = connection.cursor()
 
+    # Users table
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,6 +19,7 @@ def init_db():
     )
     """)
 
+    # Logs table
     c.execute("""
     CREATE TABLE IF NOT EXISTS logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +35,17 @@ def init_db():
         comments TEXT
     )
     """)
+
+    # Ensure admin exists
+    c.execute("SELECT * FROM users WHERE username=?", ("admin",))
+    if not c.fetchone():
+        c.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            ("admin", "admin123", "Admin")
+        )
+
+    connection.commit()
+    connection.close()
 
     # Default admin
     c.execute("SELECT * FROM users WHERE username='admin'")
