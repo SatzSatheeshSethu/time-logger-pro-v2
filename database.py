@@ -2,11 +2,12 @@ import sqlite3
 
 DB_NAME = "timelogs.db"
 
+
 def get_connection():
     return sqlite3.connect(DB_NAME, check_same_thread=False)
 
-def init_db():
 
+def init_db():
     with get_connection() as conn:
         c = conn.cursor()
 
@@ -42,39 +43,37 @@ def init_db():
         if not c.fetchone():
             c.execute(
                 "INSERT INTO users (username,password,role) VALUES (?,?,?)",
-                ("admin","admin123","Admin")
+                ("admin", "admin123", "Admin")
             )
 
         conn.commit()
 
 
 def add_user(username, password, role):
-
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO users(username,password,role) VALUES (?,?,?)",
-            (username,password,role)
+            (username, password, role)
         )
         conn.commit()
 
 
 def get_users():
-
     with get_connection() as conn:
-        return conn.execute("SELECT username, role FROM users").fetchall()
+        return conn.execute(
+            "SELECT username, role FROM users"
+        ).fetchall()
 
 
 def validate_user(username, password):
-
     with get_connection() as conn:
         return conn.execute(
             "SELECT role FROM users WHERE username=? AND password=?",
-            (username,password)
+            (username, password)
         ).fetchone()
 
 
 def insert_log(data):
-
     with get_connection() as conn:
         conn.execute("""
         INSERT INTO logs(username,date,team,project,sub_activity,category,start_time,end_time,duration,comments)
@@ -84,6 +83,7 @@ def insert_log(data):
 
 
 def get_logs():
-
     with get_connection() as conn:
-        return conn.execute("SELECT * FROM logs").fetchall()
+        return conn.execute(
+            "SELECT * FROM logs"
+        ).fetchall()
