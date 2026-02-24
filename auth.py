@@ -1,5 +1,5 @@
 import streamlit as st
-from database import validate_user
+from supabase_client import supabase
 
 def login():
 
@@ -10,22 +10,19 @@ def login():
 
         st.title("🔐 Login")
 
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
 
         if st.button("Login"):
-            user = validate_user(u,p)
-            if user:
+
+            res = supabase.table("users").select("*").eq("username", username).eq("password", password).execute()
+
+            if res.data:
                 st.session_state.logged = True
-                st.session_state.username = u
-                st.session_state.role = user[0]
+                st.session_state.username = username
+                st.session_state.role = res.data[0]["role"]
                 st.rerun()
             else:
                 st.error("Invalid login")
 
         st.stop()
-
-def logout():
-    if st.sidebar.button("Logout"):
-        st.session_state.logged = False
-        st.rerun()
